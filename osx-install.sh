@@ -50,7 +50,7 @@ printf "\n*** MCutie installer ***\n"
 func_file_check "$var_service_name.template" #plist
 func_file_check "$var_executable_name_path/$var_executable_name" #binary
 func_file_check "$var_config_file_name" #config.yaml
-func_file_check "uninstall.sh"
+func_file_check "osx-uninstall.sh"
 
 sed "s/REPLACEME/$USER/g" org.mcutie.com.plist.template > "$var_service_name"
 
