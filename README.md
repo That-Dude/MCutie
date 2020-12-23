@@ -16,11 +16,11 @@ Whilst it works fine for me, this should be considered <u>**Alpha**</u> software
 
 I developed this agent specifically so that the computers in my local network could publish stats that show up in the HomeAssistant Dashboard:
 
-![Home-Assistant-Dashboard-screen-shot.png](/Users/dan/Nextcloud/programming/golang/mcutie/docs/Home-Assistant-Dashboard-screen-shot.png)
+![Home-Assistant-Dashboard-screen-shot.png](docs/Home-Assistant-Dashboard-screen-shot.png)
 
 You can also execute commands from Home Assistant using the Scripts module like this:
 
-![Home-Assistant-Action-screenshot.png](/Users/dan/Nextcloud/programming/golang/mcutie/docs/Home-Assistant-Action-screenshot.png)
+![Home-Assistant-Action-screenshot.png](docs/Home-Assistant-Action-screenshot.png)
 
 ## Installation
 
