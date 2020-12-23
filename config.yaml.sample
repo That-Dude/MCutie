@@ -1,0 +1,4 @@
+url: ssl://ha.yourdomain.com:8883
+username: mqttuser
+password: Your-Passowrd
+updateinterval: "9"
