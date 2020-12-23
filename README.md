@@ -16,11 +16,11 @@ Whilst it works fine for me, this should be considered <u>**Alpha**</u> software
 
 I developed this agent specifically so that the computers in my local network could publish stats that show up in the HomeAssistant Dashboard:
 
-![Home-Assistant-Dashboard-screen-shot.png](docs/Home-Assistant-Dashboard-screen-shot.png)
+<img src="docs/Home-Assistant-Dashboard-screen-shot.png" title="" alt="Home-Assistant-Dashboard-screen-shot.png" width="338">
 
 You can also execute commands from Home Assistant using the Scripts module like this:
 
-![Home-Assistant-Action-screenshot.png](docs/Home-Assistant-Action-screenshot.png)
+<img title="" src="docs/Home-Assistant-Action-screenshot.png" alt="Home-Assistant-Action-screenshot.png" width="338">
 
 ## Installation
 
@@ -47,7 +47,6 @@ I've writen a Bash script to install MCutie as a local user service:
 chmod +x osx-install.sh
 
 ./osx-install.sh
-
 ```
 
 It will now run at boot and continually attempt to re-start itself after 60 seconds after failure , e.g. you disconnect from your network or your MQTT broker goes offline.
@@ -64,14 +63,14 @@ The program runs and works as expected but I've not decided how best to run it a
 
 ### Credits
 
-https://stackexchange.com
+stackexchange.com
 
-[GitHub - shirou/gopsutil: psutil for golang](https://github.com/shirou/gopsutil)
+github.com/shirou/gopsutil
 
-[github.com/sirupsen/logrus]()
+github.com/sirupsen/logrus
 
-[github.com/eclipse/paho.mqtt.golang]()
+github.com/eclipse/paho.mqtt.golang
 
-[github.com/zpatrick/go-config]()
+github.com/zpatrick/go-config
 
-[github.com/deckarep/gosx-notifier]()
+github.com/deckarep/gosx-notifier
