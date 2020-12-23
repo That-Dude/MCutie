@@ -46,7 +46,12 @@ I've writen a Bash script to install MCutie as a local user service:
 ```bash
 chmod +x osx-install.sh
 
-./osx-install.sh
+./osx-install.sh -i
+
+To un-install:
+
+./osx-install.sh -u
+
 ```
 
 It will now run at boot and continually attempt to re-start itself after 60 seconds after failure , e.g. you disconnect from your network or your MQTT broker goes offline.
@@ -54,6 +59,40 @@ It will now run at boot and continually attempt to re-start itself after 60 seco
 ### Windows
 
 The program runs and works as expected but I've not decided how best to run it as a user land service yet.
+
+## Debugging
+Mcutie outputs to a log file located in the same folder as the executable file e.g. on MacOS
+```bash
+cat ~/.mcutie/mcutie.log
+
+time="2020-12-23T23:38:23Z" level=info msg="***"
+time="2020-12-23T23:38:23Z" level=info msg="*** Start program execution ***"
+time="2020-12-23T23:38:23Z" level=info msg="***"
+time="2020-12-23T23:38:23Z" level=info msg="Cleaning up hostname to remove suffix (if present)"
+time="2020-12-23T23:38:23Z" level=info msg="Safe hostname = DT-MBP15"
+time="2020-12-23T23:38:23Z" level=info msg="read data from config.yaml"
+time="2020-12-23T23:38:23Z" level=info msg="Connect to MQQT server"
+time="2020-12-23T23:38:24Z" level=info msg="Subscribe to 'command' topic"
+time="2020-12-23T23:38:24Z" level=info msg="Connected to MQTT server"
+time="2020-12-23T23:38:24Z" level=info msg="Subscribed to topic: mcutie/DT-MBP15/command"
+time="2020-12-23T23:38:24Z" level=info msg="Publish HA auto-config sensors"
+time="2020-12-23T23:38:24Z" level=info msg="Fuction: publishHomeAssistantAutoConfigData hostNameSafe = DT-MBP15"
+time="2020-12-23T23:38:24Z" level=info msg="Fuction: publishHomeAssistantAutoConfigData hostNameSafe = DT-MBP15"
+time="2020-12-23T23:38:24Z" level=info msg="Fuction: publishHomeAssistantAutoConfigData hostNameSafe = DT-MBP15"
+time="2020-12-23T23:38:24Z" level=info msg="Fuction: publishHomeAssistantAutoConfigData hostNameSafe = DT-MBP15"
+time="2020-12-23T23:38:24Z" level=info msg="Fuction: publishHomeAssistantAutoConfigData hostNameSafe = DT-MBP15"
+time="2020-12-23T23:38:24Z" level=info msg="Fuction: publishHomeAssistantAutoConfigData hostNameSafe = DT-MBP15"
+time="2020-12-23T23:38:24Z" level=info msg="Fuction: publishHomeAssistantAutoConfigData hostNameSafe = DT-MBP15"
+time="2020-12-23T23:38:24Z" level=info msg="Fuction: publishHomeAssistantAutoConfigData hostNameSafe = DT-MBP15"
+time="2020-12-23T23:38:24Z" level=info msg="Fuction: publishHomeAssistantAutoConfigData hostNameSafe = DT-MBP15"
+time="2020-12-23T23:38:24Z" level=info msg="Fuction: publishHomeAssistantAutoConfigData hostNameSafe = DT-MBP15"
+time="2020-12-23T23:38:24Z" level=info msg="Fuction: publishHomeAssistantAutoConfigData hostNameSafe = DT-MBP15"
+time="2020-12-23T23:38:24Z" level=info msg="Fuction: publishHomeAssistantAutoConfigData hostNameSafe = DT-MBP15"
+time="2020-12-23T23:38:24Z" level=info msg="Fuction: publishHomeAssistantAutoConfigData hostNameSafe = DT-MBP15"
+time="2020-12-23T23:38:24Z" level=info msg="Fuction: publishHomeAssistantAutoConfigData hostNameSafe = DT-MBP15"
+time="2020-12-23T23:38:24Z" level=info msg="Fuction: publishHomeAssistantAutoConfigData hostNameSafe = DT-MBP15"
+time="2020-12-23T23:38:24Z" level=info msg="Publish device stats in a loop"
+```
 
 ## Notes
 
