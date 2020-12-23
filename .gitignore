@@ -1,5 +1,5 @@
 config.yaml
 go.mod
 go.sum
-bin/
 .DS_Store
+org.mcutie.com.plist

@@ -1,13 +1,28 @@
 #!/bin/bash
-# updated 29/11/2020
+# Version 2020-12-23
+#
+# This script installs mcutie on macOSX
+# Tested on BigSur
 
-# *** This script un/installs mcutie.
-
-# Set magic variables for current file & dir
+#######################################
+# Set script variables for .
+# Globals:
+#   BACKUP_DIR
+#   ORACLE_SID
+# Arguments:
+#   None
+#######################################
 __dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 __file="${__dir}/$(basename "${BASH_SOURCE[0]}")"
 __base="$(basename ${__file} .sh)"
 __root="$(cd "$(dirname "${__dir}")" && pwd)" # <-- change this as it depends on your app
+
+echo "$__dir"
+echo "$__file"
+echo "$__base"
+echo "$__root"
+
+exit 1
 
 # *** Global Variables ***
 PRETTY_SCRIPT_NAME="MCutie installer"
@@ -19,18 +34,10 @@ var_executable_name="mcutie"
 var_executable_name_path="bin"
 var_config_file_name="config.yaml"
 
-func_program_exisits() {
-    if ! hash "$1" 2>/dev/null; then
-        printf " - $1 not found | You need to install $1 to use this app\n"
-        exit 1
-    else
-        printf " - $1 found\n"
-    fi
-}
-
 func_file_exisits() { if [ -f "$1" ]; then true; else false; fi }
 
 func_dir_exisits() { if [ -d "$1" ]; then true; else false; fi }
+
 
 func_file_check()
 {
