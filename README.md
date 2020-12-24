@@ -16,11 +16,11 @@ Whilst it works fine for me, this should be considered <u>**Alpha**</u> software
 
 I developed this agent specifically so that the computers in my local network could publish stats that show up in the HomeAssistant Dashboard:
 
-<img src="docs/Home-Assistant-Dashboard-screen-shot.png" title="" alt="Home-Assistant-Dashboard-screen-shot.png" width="338">
+<img src="docs/Home-Assistant-Dashboard-screen-shot.png" title="" alt="Home-Assistant-Dashboard-screen-shot.png" width="450">
 
 You can also execute commands from Home Assistant using the Scripts module like this:
 
-<img title="" src="docs/Home-Assistant-Action-screenshot.png" alt="Home-Assistant-Action-screenshot.png" width="338">
+<img title="" src="docs/Home-Assistant-Action-screenshot.png" alt="Home-Assistant-Action-screenshot.png" width="450">
 
 ## Installation
 
@@ -51,7 +51,6 @@ chmod +x osx-install.sh
 To un-install:
 
 ./osx-install.sh -u
-
 ```
 
 It will now run at boot and continually attempt to re-start itself after 60 seconds after failure , e.g. you disconnect from your network or your MQTT broker goes offline.
@@ -61,7 +60,9 @@ It will now run at boot and continually attempt to re-start itself after 60 seco
 The program runs and works as expected but I've not decided how best to run it as a user land service yet.
 
 ## Debugging
+
 MCutie outputs to a log file located in the same folder as the executable file e.g. on MacOS
+
 ```bash
 cat ~/.mcutie/mcutie.log
 

@@ -15,7 +15,7 @@ var_service_name="org.mcutie.com.plist"
 var_service_location="$HOME/Library/LaunchAgents"
 var_script_install_path="$HOME/.mcutie"
 var_executable_name="mcutie"
-var_executable_name_path="bin"
+var_executable_name_path="bin/macos"
 var_config_file_name="config.yaml"
 
 func_file_exisits() { if [ -f "$1" ]; then true; else false; fi }
@@ -47,7 +47,7 @@ func_remove()
         echo " - removing launch control plist file"
         rm "$var_service_location/$var_service_name"
     fi
-    echo "Uninstall complete"
+    echo " - uninstall complete"
 }
 
 func_install()
@@ -82,7 +82,8 @@ func_install()
 }
 
 #  Main code execution starts here
-printf "\n*** MCutie installer ***\n"
+echo "\n*** $pretty_script_name ***"
+echo ""
 
 if [ -z "$1" ]; then
     printf "\nTo install type:\n"
