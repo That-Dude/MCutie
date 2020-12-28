@@ -95,6 +95,10 @@ time="2020-12-23T23:38:24Z" level=info msg="Fuction: publishHomeAssistantAutoCon
 time="2020-12-23T23:38:24Z" level=info msg="Publish device stats in a loop"
 ```
 
+## Example Home Assistant actions
+
+
+
 ## Notes
 
 1. Did I mention this is alpha software under active development from a rookie coder? 

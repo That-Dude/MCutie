@@ -9,18 +9,12 @@ import (
 	"strings"
 	"time"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/company/mcutie/getstats"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
-	"github.com/zpatrick/go-config"
-
-	gosxnotifier "github.com/deckarep/gosx-notifier"
 	"github.com/gen2brain/beeep"
+	log "github.com/sirupsen/logrus"
+	"github.com/zpatrick/go-config"
 )
-
-// We use gosx-notifier instead of beep on OSX. This looks better than "beeep" which
-// always shows Osascript in Subject and links to the applescript editor
 
 // Command json recieved via MQTT
 type Command struct {
@@ -38,6 +32,7 @@ var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Me
 	log.Info("messagePubHandler: Received message")
 	log.Info("messagePubHandler: From topic: ", msg.Topic())
 	decodeme := msg.Payload()
+	log.Info(decodeme)
 	var jcmd Command
 	json.Unmarshal([]byte(decodeme), &jcmd)
 	switch os := runtime.GOOS; os {
@@ -45,13 +40,22 @@ var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Me
 		log.Info("messagePubHandler: System: OS X")
 		if jcmd.Prog == "notify" {
 			log.Info("messagePubHandler: notify")
-			osxnotify(jcmd.Arg1, jcmd.Arg2)
+			osxnotify(jcmd.Arg1, jcmd.Arg2, jcmd.Arg3)
+		}
+		if jcmd.Prog == "VolMacos" {
+			log.Info("messagePubHandler: VolumeMacos")
+			log.Info("arg1=", jcmd.Arg1)
+			log.Info("arg2=", jcmd.Arg2)
+			log.Info("arg3=", jcmd.Arg3)
+			setVolumeMacOS(jcmd.Arg1)
 		}
 		if jcmd.Prog == "execute" {
 			log.Info("messagePubHandler: Running blind system command")
+			log.Info("arg1=", jcmd.Arg1)
+			log.Info("arg2=", jcmd.Arg2)
+			log.Info("arg3=", jcmd.Arg3)
 			execute(jcmd.Arg1, jcmd.Arg2, jcmd.Arg3)
 		}
-
 	case "linux":
 		log.Info("messagePubHandler: System: Linux")
 	case "windows":
@@ -80,33 +84,55 @@ func windowsNotify(title string, subject string) {
 
 }
 
-func osxnotify(title string, subject string) {
-	log.Info("Title: ", title, " Subject: ", subject)
-	note := gosxnotifier.NewNotification(subject)
-	note.Title = title
-
-	note.Group = "com.unique.yourapp.identifier"
-
-	note.Sender = "com.apple.Safari"
-
-	err := note.Push()
+// Alert MacOS only - displays a desktop notification and plays a system sound.
+func Alert(title, message, subtitle, soundEffect string) error {
+	// Macos Sounds found in /System/Library/Sounds
+	//Basso.aiff     -- good, but error-like (low keys on keyboard)
+	// Blow.aiff      -- good
+	// Bottle.aiff    -- too short
+	// Frog.aiff      -- chirp
+	// Funk.aiff      -- thud
+	// Glass.aiff     -- good (like the end of a timer)
+	// Hero.aiff      -- good
+	// Morse.aiff     -- 'pop'
+	// Ping.aiff      -- good
+	// Pop.aiff       -- shorter 'pop'
+	// Purr.aiff      -- good
+	// Sosumi.aiff    -- good
+	// Submarine.aiff -- good
+	// Tink.aiff      -- too quiet
+	osa, err := exec.LookPath("osascript")
 	if err != nil {
-		log.Error("osxnotify error")
+		return err
 	}
+	cmd := exec.Command(osa, "-e", `tell application "System Events" to display notification "`+message+`" with title "`+title+`" subtitle "`+subtitle+`" sound name "`+soundEffect+`"`)
+	return cmd.Run()
 }
 
-func execute(arg1 string, arg2 string, arg3 string) {
+func setVolumeMacOS(volAmount string) error {
 
-	log.Info("function: execute")
-
-	out, err := exec.Command(arg1, arg2, arg3).Output()
+	osa, err := exec.LookPath("osascript")
 	if err != nil {
-		log.Error(err)
+		return err
 	}
-	log.Info("Command Successfully Executed")
-	output := string(out[:])
-	log.Info(output)
+	cmd := exec.Command(osa, "-e", `set volume output volume "`+volAmount+`"`)
+	return cmd.Run()
+}
 
+func osxnotify(title string, subject string, subtitle string) {
+	log.Info("Title=", title)
+	log.Info("Subject=", subject)
+	log.Info("Subtitle=", subtitle)
+	Alert(title, subject, subtitle, "glass")
+	log.Info("Notify function complete")
+}
+
+// forks the command and returns control to mcutie
+func execute(arg1 string, arg2 string, arg3 string) {
+	log.Info("function: execute")
+	cmd := exec.Command(arg1, arg2, arg3)
+	cmd.Start()
+	log.Info("Command Successfully Executed")
 }
 
 func publishHomeAssistantAutoConfigData(client mqtt.Client, myGroup string, mySensor string, unitOfMasurement string, iconChoice string) {
