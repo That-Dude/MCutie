@@ -97,7 +97,69 @@ time="2020-12-23T23:38:24Z" level=info msg="Publish device stats in a loop"
 
 ## Example Home Assistant actions
 
+```yaml
+dt_mbp13_notification_message:
+  sequence:
 
+- service: mqtt.publish
+  data:
+    topic: mcutie/DT-MBP13/command
+    payload: '{"prog": "notify", "arg1": "TITLE HERE", "arg2": "Subtitle here", "arg3": "Main message here"}'
+  mode: single
+
+dt_mbp13_tts:
+  alias: DT-mbp13 Text To Speech
+  sequence:
+- service: mqtt.publish
+  data:
+    topic: mcutie/DT-mbp13/command
+    payload: '{   "prog": "execute", "arg1": "/usr/bin/say", "arg2": "Super calla frajalistic expee alla dough-sus", "arg3": "" }'
+  mode: single
+
+dt_mbp13_vol_mute:
+  sequence:
+- service: mqtt.publish
+  data:
+    topic: mcutie/DT-mbp13/command
+    payload: '{"prog": "VolMacos", "arg1": "0", "arg2": "", "arg3": ""}'
+  mode: single
+  
+dt_mbp13_vol_50:
+  sequence:
+  - service: mqtt.publish
+    data:
+      topic: mcutie/DT-mbp13/command
+      payload: '{"prog": "VolMacos", "arg1": "50", "arg2": "", "arg3": ""}'
+    mode: single
+  
+dt_mbp13_vol_100:
+  sequence:
+- service: mqtt.publish
+  data:
+    topic: mcutie/DT-mbp13/command
+    payload: '{"prog": "VolMacos", "arg1": "100", "arg2": "", "arg3": ""}'
+  mode: single
+
+dt_mbp13_display_sleep:
+  sequence:
+- service: mqtt.publish
+  data:
+    topic: mcutie/DT-mbp13/command
+    payload: '{"prog": "execute", "arg1": "/usr/bin/pmset", "arg2": "displaysleepnow",
+  
+      "arg3": ""}'
+  mode: single
+
+dt_mbp13_kill_safari:
+  alias: DT-mbp13 kill a running process
+  sequence:
+- service: mqtt.publish
+  data:
+    topic: mcutie/DT-mbp13/command
+    payload: '{"prog": "execute", "arg1": "/usr/bin/pkill", "arg2": "-x", "arg3": "Safari"}'
+  mode: single
+
+```
 
 ## Notes
 
