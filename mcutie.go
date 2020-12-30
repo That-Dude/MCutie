@@ -6,12 +6,14 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/company/mcutie/getstats"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/gen2brain/beeep"
+	"github.com/itchyny/volume-go"
 	log "github.com/sirupsen/logrus"
 	"github.com/zpatrick/go-config"
 )
@@ -32,22 +34,17 @@ var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Me
 	log.Info("messagePubHandler: Received message")
 	log.Info("messagePubHandler: From topic: ", msg.Topic())
 	decodeme := msg.Payload()
-	log.Info(decodeme)
 	var jcmd Command
 	json.Unmarshal([]byte(decodeme), &jcmd)
 	switch os := runtime.GOOS; os {
 	case "darwin":
-		log.Info("messagePubHandler: System: OS X")
+		log.Info("messagePubHandler: System: MacOS")
 		if jcmd.Prog == "notify" {
 			log.Info("messagePubHandler: notify")
 			osxnotify(jcmd.Arg1, jcmd.Arg2, jcmd.Arg3)
 		}
-		if jcmd.Prog == "VolMacos" {
-			log.Info("messagePubHandler: VolumeMacos")
-			log.Info("arg1=", jcmd.Arg1)
-			log.Info("arg2=", jcmd.Arg2)
-			log.Info("arg3=", jcmd.Arg3)
-			setVolumeMacOS(jcmd.Arg1)
+		if jcmd.Prog == "volume" {
+			audioVolume(jcmd.Arg1)
 		}
 		if jcmd.Prog == "execute" {
 			log.Info("messagePubHandler: Running blind system command")
@@ -58,10 +55,21 @@ var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Me
 		}
 	case "linux":
 		log.Info("messagePubHandler: System: Linux")
+
 	case "windows":
 		log.Info("messagePubHandler: Windows")
 		if jcmd.Prog == "notify" {
 			windowsNotify(jcmd.Arg1, jcmd.Arg2)
+		}
+		if jcmd.Prog == "volume" {
+			audioVolume(jcmd.Arg1)
+		}
+		if jcmd.Prog == "execute" {
+			log.Info("messagePubHandler: Running blind system command")
+			log.Info("arg1=", jcmd.Arg1)
+			log.Info("arg2=", jcmd.Arg2)
+			log.Info("arg3=", jcmd.Arg3)
+			execute(jcmd.Arg1, jcmd.Arg2, jcmd.Arg3)
 		}
 	default:
 		log.Info("messagePubHandler: case default reached - I don't know what OS I'm on!")
@@ -77,6 +85,8 @@ var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err
 }
 
 func windowsNotify(title string, subject string) {
+	// Don't forget to turn on app notification in Windows 10 control panel (off my default)
+	log.Info("func: WindowsNotify")
 	err := beeep.Notify(title, subject, "gopher.png")
 	if err != nil {
 		log.Error(err)
@@ -109,15 +119,25 @@ func Alert(title, message, subtitle, soundEffect string) error {
 	return cmd.Run()
 }
 
-func setVolumeMacOS(volAmount string) error {
-
-	osa, err := exec.LookPath("osascript")
-	if err != nil {
-		return err
+func audioVolume(volLevel string) {
+	if i, err := strconv.Atoi(volLevel); err == nil {
+		err := volume.SetVolume(i)
+		if err != nil {
+			log.Fatalf("set volume failed: %+v", err)
+		}
 	}
-	cmd := exec.Command(osa, "-e", `set volume output volume "`+volAmount+`"`)
-	return cmd.Run()
+
+	log.Info("set volume success")
 }
+
+// func setVolumeMacOS(volAmount string) error {
+// 	osa, err := exec.LookPath("osascript")
+// 	if err != nil {
+// 		return err
+// 	}
+// 	cmd := exec.Command(osa, "-e", `set volume output volume "`+volAmount+`"`)
+// 	return cmd.Run()
+// }
 
 func osxnotify(title string, subject string, subtitle string) {
 	log.Info("Title=", title)
@@ -130,9 +150,22 @@ func osxnotify(title string, subject string, subtitle string) {
 // forks the command and returns control to mcutie
 func execute(arg1 string, arg2 string, arg3 string) {
 	log.Info("function: execute")
-	cmd := exec.Command(arg1, arg2, arg3)
-	cmd.Start()
-	log.Info("Command Successfully Executed")
+
+	if runtime.GOOS == "windows" {
+		log.Info("Running a Windows program")
+		cmd := exec.Command("cmd", "/C", arg1, arg2)
+		if err := cmd.Run(); err != nil {
+			fmt.Println("Error: ", err)
+		}
+	}
+
+	if runtime.GOOS == "darwin" {
+		log.Info("Running a MacOS program")
+		cmd := exec.Command(arg1, arg2, arg3)
+		cmd.Start()
+	}
+
+	log.Info("Command  Executed")
 }
 
 func publishHomeAssistantAutoConfigData(client mqtt.Client, myGroup string, mySensor string, unitOfMasurement string, iconChoice string) {
@@ -246,48 +279,61 @@ func initConfig() *config.Config {
 	return config.NewConfig([]config.Provider{yamlFile})
 }
 
+/* global variable declaration */
+var logfilename string
+
 // *******************************************
 // main
 // *******************************************
 
 func main() {
 
-	// open a file
-	f, err := os.OpenFile("mcutie.log", os.O_APPEND|os.O_CREATE|os.O_RDWR, 0666)
+	// open file to log to
+
+	// Windows log file is create it users TEMP foler %username%\AppData\Local\Temp\mcutie.log
+	if runtime.GOOS == "windows" {
+		logfilename = os.TempDir() + "\\mcutie.log"
+	}
+	// Macos log file is create in same folder as the program $HOME/.mcutie/mcutie.log
+	if runtime.GOOS == "darwin" {
+		logfilename = "mcutie.log"
+	}
+
+	f, err := os.OpenFile(logfilename, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0666)
 	if err != nil {
 		fmt.Printf("error opening file: %v", err)
 	}
-
 	// don't forget to close it
 	defer f.Close()
-
-	// Log as JSON instead of the default ASCII formatter.
+	// Set log format
 	log.SetFormatter(&log.TextFormatter{})
-
 	// Output to stderr instead of stdout, could also be a file.
 	log.SetOutput(f)
-
 	// Only log the warning severity or above.
 	log.SetLevel(log.DebugLevel)
+
 	log.Info("***")
 	log.Info("*** Start program execution ***")
 	log.Info("***")
-	log.Info("Cleaning up hostname to remove suffix (if present)")
+
+	log.Info("Cleaning up hostname to remove suffix (if present)") // e.g hostname.local = hostname
 	varTemp := getstats.HostName()
 	varTemp2 := strings.Split(varTemp, ".")
 	HostNameSafe = varTemp2[0]
 	HostNameSafe = strings.ToUpper(HostNameSafe)
-
 	log.Info("Safe hostname = ", HostNameSafe)
 
 	log.Info("read data from config.yaml")
 	conf := initConfig()
 
+	// MQTT setup
+	log.Info(conf.String("url"))
 	connectURL, err := conf.String("url")
 	if err != nil {
 		log.Fatal(err)
 	}
 	connectUsername, err := conf.String("username")
+	log.Info(conf.String("username"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -296,6 +342,7 @@ func main() {
 		log.Fatal(err)
 	}
 	updateInterval, err := conf.Int("updateinterval")
+	log.Info(conf.Int("updateinterval"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -311,11 +358,12 @@ func main() {
 	opts.OnConnectionLost = connectLostHandler
 	client := mqtt.NewClient(opts)
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
-		log.Info("Network error: Sleeping 5 minutes before allowing service to reconnect")
+		log.Info("Network error: Sleeping 5 minutes before quitting and allowing OS service to reconnect")
 		time.Sleep(time.Duration(300) * time.Second)
 		log.Fatal(token.Error())
 	}
 
+	// This is the topic where we recieve commands to run on this host
 	log.Info("Subscribe to 'command' topic")
 	sub(client)
 
@@ -347,5 +395,6 @@ func main() {
 	log.Info("Publish device stats in a loop")
 	publishStats(client, updateInterval)
 
+	// this never executes as the loop above is infinte
 	client.Disconnect(250)
 }

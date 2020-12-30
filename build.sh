@@ -51,6 +51,7 @@ go build -ldflags="-s -w" -o bin/macos/mcutie mcutie.go
 
 echo " - Building Windows 10 x64"
 GOOS=windows GOARCH=amd64 go build -ldflags="-s -w -H=windowsgui" -o bin/win64/mcutie.exe mcutie.go
+#GOOS=windows GOARCH=amd64 go build -o bin/win64/mcutie.exe mcutie.go
 
 #Compress the resulting files with UPX - not currently working with macos binaries under Bigsur
 #upx mcutie.exe - windows 10 creates false positives identifying the compressed file as a virus - Nice work windows!
