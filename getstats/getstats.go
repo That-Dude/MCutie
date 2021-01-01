@@ -145,19 +145,11 @@ func MemUsedPercent() string {
 	return s
 }
 
-// MemFree x
-func MemFree() string {
-	vmStat, err := mem.VirtualMemory()
-	dealwithErr(err)
-	s := fmt.Sprintf(bytesToSize(vmStat.Free))
-	return s
-}
-
 // DiskTotal x
 func DiskTotal() string {
 	s := "0"
 	if runtime.GOOS == "darwin" {
-		diskStat, err := disk.Usage("/System/Volumes/Data") //Macos point point
+		diskStat, err := disk.Usage("/System/Volumes/Data") //Macos mount point
 		dealwithErr(err)
 		s = fmt.Sprintf(bytesToSize(diskStat.Total))
 	}
@@ -174,13 +166,13 @@ func DiskTotal() string {
 func DiskUsed() string {
 	s := "0"
 	if runtime.GOOS == "darwin" {
-		diskStat, err := disk.Usage("/System/Volumes/Data") //Macos point point
+		diskStat, err := disk.Usage("/System/Volumes/Data") //Macos mount point
 		dealwithErr(err)
 		s = fmt.Sprintf(bytesToSize(diskStat.Used))
 	}
 
 	if runtime.GOOS == "windows" {
-		diskStat, err := disk.Usage("\\") // mount point for Windows
+		diskStat, err := disk.Usage("\\") // mount mount for Windows
 		dealwithErr(err)
 		s = fmt.Sprintf(bytesToSize(diskStat.Used))
 	}
@@ -191,13 +183,13 @@ func DiskUsed() string {
 func DiskFree() string {
 	s := "0"
 	if runtime.GOOS == "darwin" {
-		diskStat, err := disk.Usage("/System/Volumes/Data") //Macos point point
+		diskStat, err := disk.Usage("/System/Volumes/Data") //Macos mount point
 		dealwithErr(err)
 		s = fmt.Sprintf(bytesToSize(diskStat.Free))
 	}
 
 	if runtime.GOOS == "windows" {
-		diskStat, err := disk.Usage("\\") // mount point for Windows
+		diskStat, err := disk.Usage("\\") // mount mount for Windows
 		dealwithErr(err)
 		s = fmt.Sprintf(bytesToSize(diskStat.Free))
 	}

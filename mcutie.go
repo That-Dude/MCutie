@@ -198,7 +198,7 @@ func publishHomeAssistantAutoConfigData(client mqtt.Client, myGroup string, mySe
 			"\"model\": \"" + "v1.0" + "\"" + "," +
 			"\"manufacturer\": \"" + "MCutie" + "\"" + "}}"
 
-	token := client.Publish(myTopic, 0, false, jsonData)
+	token := client.Publish(myTopic, 0, true, jsonData)
 
 	token.Wait()
 }
@@ -240,9 +240,6 @@ func publishStats(client mqtt.Client, updateInterval int) {
 		myTopic = "mcutie/" + HostNameSafe + "/stats/memory/mem_used"
 		token = client.Publish(myTopic, 0, false, getstats.MemUsed())
 
-		myTopic = "mcutie/" + HostNameSafe + "/stats/memory/mem_free"
-		token = client.Publish(myTopic, 0, false, getstats.MemFree())
-
 		myTopic = "mcutie/" + HostNameSafe + "/stats/memory/mem_percent"
 		token = client.Publish(myTopic, 0, false, getstats.MemUsedPercent())
 
@@ -254,6 +251,30 @@ func publishStats(client mqtt.Client, updateInterval int) {
 
 		myTopic = "mcutie/" + HostNameSafe + "/stats/disk/disk_free"
 		token = client.Publish(myTopic, 0, false, getstats.DiskFree())
+
+		log.Info("Publish HA auto-config sensors")
+		publishHomeAssistantAutoConfigData(client, "system", "cpu", "%", "mdi:speedometer")
+		publishHomeAssistantAutoConfigData(client, "system", "hostname", "", "mdi:account")
+		if runtime.GOOS == "darwin" {
+			publishHomeAssistantAutoConfigData(client, "system", "os", "", "mdi:apple")
+		}
+		if runtime.GOOS == "windows" {
+			publishHomeAssistantAutoConfigData(client, "system", "os", "", "mdi:windows")
+		}
+		if runtime.GOOS == "linux" {
+			publishHomeAssistantAutoConfigData(client, "system", "os", "", "mdi:linux")
+		}
+		publishHomeAssistantAutoConfigData(client, "system", "user", "", "mdi:account")
+		publishHomeAssistantAutoConfigData(client, "system", "uptime", "", "mdi:calendar-clock")
+		publishHomeAssistantAutoConfigData(client, "power", "battery", "%", "mdi:battery")
+		publishHomeAssistantAutoConfigData(client, "net", "iplocal", "", "mdi:lan")
+		publishHomeAssistantAutoConfigData(client, "net", "ipwan", "", "mdi:wan")
+		publishHomeAssistantAutoConfigData(client, "memory", "mem_total", "GB", "mdi:memory")
+		publishHomeAssistantAutoConfigData(client, "memory", "mem_used", "GB", "mdi:speedometer")
+		publishHomeAssistantAutoConfigData(client, "memory", "mem_percent", "%", "mdi:speedometer")
+		publishHomeAssistantAutoConfigData(client, "disk", "disk_total", "GB", "mdi:harddisk")
+		publishHomeAssistantAutoConfigData(client, "disk", "disk_used", "GB", "mdi:speedometer")
+		publishHomeAssistantAutoConfigData(client, "disk", "disk_free", "GB", "mdi:speedometer")
 
 		token.Wait()
 
@@ -366,31 +387,6 @@ func main() {
 	// This is the topic where we recieve commands to run on this host
 	log.Info("Subscribe to 'command' topic")
 	sub(client)
-
-	log.Info("Publish HA auto-config sensors")
-	publishHomeAssistantAutoConfigData(client, "system", "cpu", "%", "mdi:speedometer")
-	publishHomeAssistantAutoConfigData(client, "system", "hostname", "", "mdi:account")
-	if runtime.GOOS == "darwin" {
-		publishHomeAssistantAutoConfigData(client, "system", "os", "", "mdi:apple")
-	}
-	if runtime.GOOS == "windows" {
-		publishHomeAssistantAutoConfigData(client, "system", "os", "", "mdi:windows")
-	}
-	if runtime.GOOS == "linux" {
-		publishHomeAssistantAutoConfigData(client, "system", "os", "", "mdi:linux")
-	}
-	publishHomeAssistantAutoConfigData(client, "system", "user", "", "mdi:account")
-	publishHomeAssistantAutoConfigData(client, "system", "uptime", "", "mdi:calendar-clock")
-	publishHomeAssistantAutoConfigData(client, "power", "battery", "%", "mdi:battery")
-	publishHomeAssistantAutoConfigData(client, "net", "iplocal", "", "mdi:lan")
-	publishHomeAssistantAutoConfigData(client, "net", "ipwan", "", "mdi:wan")
-	publishHomeAssistantAutoConfigData(client, "memory", "mem_total", "GB", "mdi:memory")
-	publishHomeAssistantAutoConfigData(client, "memory", "mem_used", "GB", "mdi:speedometer")
-	publishHomeAssistantAutoConfigData(client, "memory", "mem_free", "GB", "mdi:speedometer")
-	publishHomeAssistantAutoConfigData(client, "memory", "mem_percent", "%", "mdi:speedometer")
-	publishHomeAssistantAutoConfigData(client, "disk", "disk_total", "GB", "mdi:harddisk")
-	publishHomeAssistantAutoConfigData(client, "disk", "disk_used", "GB", "mdi:speedometer")
-	publishHomeAssistantAutoConfigData(client, "disk", "disk_free", "GB", "mdi:speedometer")
 
 	log.Info("Publish device stats in a loop")
 	publishStats(client, updateInterval)
